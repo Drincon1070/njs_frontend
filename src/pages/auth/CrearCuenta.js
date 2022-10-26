@@ -1,11 +1,86 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import APIInvoke from "../../utils/APIInvoke";
+import swal from "sweetalert";
 
 const CrearCuenta = ()  => {
-    let contra, nombre, email; 
-    const onChange = ()=>{
+
+    const alerta= (mensaje, tipo, titulo)=>{
+        swal({
+            title: titulo,
+            text: mensaje, 
+            icon: tipo,
+            buttons: {
+                confirm:{
+                    text: "Aceptar",
+                    value: true, 
+                    visible: true,
+                    className: "btn btn-secondary",
+                    closeModal: true
+                }
+            }
+        });
+    }
+    
+    const [usuario, setUsuario] = useState({
+        nombre: "",
+        email: "",
+        contra: ""
+    });
+    
+    const { nombre, email, contra } = usuario; 
+ 
+    const onChange = (e)=>{
+        setUsuario({
+            ...usuario,
+            [e.target.name]: e.target.value
+        });
+    }
+
+    useEffect(()=>{
+        document.getElementById("nombre").focus();
+    },[]); 
+
+    const crearCuenta = async ()=>{
+        
+        const data = {
+            nombre: usuario.nombre,
+            email: usuario.email,
+            contra: usuario.contra
+        }
+
+        const response = await APIInvoke.invokePOST(
+            "/usuarios/new", data);
+        
+        const respuesta = response.mensaje; 
+        let titulo, msg, tipo; 
+        if(respuesta === "Usuario Existente"){
+            titulo = "Error al crear el usuario"; 
+            msg = "El usuario ya existe"; 
+            tipo = "error"; 
+            alerta(msg, tipo, titulo); 
+        }
+        else if(respuesta === "Usuario Creado"){
+            titulo = "Proceso Exitoso!"; 
+            msg = "Usuario Creado correctamente"; 
+            tipo = "success";
+            alerta(msg, tipo, titulo);
+        }
+
+        setUsuario({
+            nombre: "",
+            email: "",
+            contra: ""
+        });
         
     }
+
+    const onSubmit = (e)=>{
+        e.preventDefault();
+        crearCuenta();
+    }
+
     return(
         <div className="container">
         <div className="row mt-5" >
@@ -18,7 +93,7 @@ const CrearCuenta = ()  => {
                         Crear Cuenta de usuario
                     </div>
                     <div className="card-body">
-                        <form>
+                        <form onSubmit={onSubmit}>
                             <div>
                                 <div className="form-floating mb-3">
                                     <input 
@@ -61,7 +136,7 @@ const CrearCuenta = ()  => {
                                 </div>
                             </div>
                             <div className="container mt-4">
-                                <button type="button" className="btn btn-primary my-2">Crear Cuenta</button>
+                                <button type="submit" className="btn btn-primary my-2">Crear Cuenta</button>
                                 <Link to={"/"} className="btn btn-secondary mx-2">Iniciar Sesión</Link>
                             </div>
                         </form>

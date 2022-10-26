@@ -1,10 +1,87 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import APIInvoke from "../../utils/APIInvoke";
+import swal from "sweetalert";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
-    let email, contra; 
-    const onChange = () =>{
 
+    //MENSAJE DE ALERTA
+    const alerta= (mensaje, tipo, titulo)=>{
+        swal({
+            title: titulo,
+            text: mensaje, 
+            icon: tipo,
+            buttons: {
+                confirm:{
+                    text: "Aceptar",
+                    value: true, 
+                    visible: true,
+                    className: "btn btn-secondary",
+                    closeModal: true
+                }
+            }
+        });
+    }
+
+    const navegador = useNavigate(); 
+
+    const [usuario, setUsuario] = useState({
+        email: "",
+        contra: ""
+    })
+
+    const { email, contra } = usuario; 
+
+    const onChange = (e) =>{
+        setUsuario({
+            ...usuario,
+            [e.target.name]: e.target.value
+        }); 
+    }
+
+    useEffect(()=>{
+        document.getElementById("email").focus(); 
+    },[]); 
+
+    const iniciarSesion = async ()=>{
+        
+        const data = {
+            email: usuario.email,
+            contra: usuario.contra
+        }
+
+        const response = await APIInvoke.invokePOST("/usuarios/login", data); 
+
+        const acceso = response.mensaje; 
+        let titulo, msg, tipo; 
+        if(acceso==="Ingreso"){
+            titulo = "Proceso Exitoso!"; 
+            msg = "Ingreso exitoso al sistema"; 
+            tipo = "success";
+            alerta(msg, tipo, titulo);
+
+            localStorage.setItem("user", response.usuario); 
+
+            navegador("/Home"); 
+        }
+        else if(acceso==="Denegado"){
+            titulo = "Acceso Denegado"; 
+            msg = "Usuario o contraseña incorrectos"; 
+            tipo = "error";
+            alerta(msg, tipo, titulo);
+        }
+
+        setUsuario({
+            email: "",
+            contra: ""
+        }); 
+    }
+
+    const onSubmit = (e) =>{
+        e.preventDefault(); 
+        iniciarSesion(); 
     }
     return (
         <div className="container">
@@ -18,7 +95,7 @@ const Login = () => {
                             Acceso al sistema
                         </div>
                         <div className="card-body">
-                            <form>
+                            <form onSubmit={onSubmit}>
                                 <div>
                                     <div className="form-floating mb-3">
                                         <input 
