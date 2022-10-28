@@ -3,6 +3,7 @@ import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { useEffect, useState } from "react";
 import APIInvoke from "../../utils/APIInvoke"; 
+import { Link } from "react-router-dom";
 
 const ListaVehiculos = () => {
 
@@ -56,7 +57,10 @@ const ListaVehiculos = () => {
                                             <td>{item.marca}</td>
                                             <td>{item.modelo}</td>
                                             <td>
-                                                <button type="button" class="btn btn-outline-success mx-3">Actualizar</button>
+                                                <Link class="btn btn-outline-success mx-3"
+                                                    to={`/edit/${item._id}`} >
+                                                    Actualizar
+                                                </Link>
                                                 <button type="button" class="btn btn-outline-secondary">Eliminar</button>
                                             </td>
                                         </tr>

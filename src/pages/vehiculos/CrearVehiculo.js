@@ -1,17 +1,91 @@
 import React from "react";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import APIInvoke from "../../utils/APIInvoke"; 
+import swal from "sweetalert";
+
 
 const CrearVehiculo = () => {
-    let placa, marca, modelo;
 
-    const onChange = () => {
+    const alerta= (mensaje, tipo, titulo)=>{
+        swal({
+            title: titulo,
+            text: mensaje, 
+            icon: tipo,
+            buttons: {
+                confirm:{
+                    text: "Aceptar",
+                    value: true, 
+                    visible: true,
+                    className: "btn btn-secondary",
+                    closeModal: true
+                }
+            }
+        });
+    }
+    
+    const [vehiculo, setVehiculo] = useState({
+        placa: "",
+        marca: "", 
+        modelo: ""
+    }); 
 
+    const { placa, marca, modelo } = vehiculo; 
+
+
+    const onChange = (e) => {
+        setVehiculo({
+            ...vehiculo, 
+            [e.target.name]: e.target.value 
+        });
     }
 
-    const onSubmit = () => {
+    useEffect(()=>{
+        document.getElementById("placa").focus(); 
+    }, []); 
 
+    const crearVehiculo = async ()=>{
+        //RECUPERAR LOS DATOS DEL HOOK
+        const data = {
+            placa: vehiculo.placa, 
+            marca: vehiculo.marca,
+            modelo: vehiculo.modelo
+        }
+
+        //INVOCAR LA PETICION 
+        const response = await APIInvoke.invokePOST("/vehiculos/new", data); 
+        const mensaje = response.mensaje; 
+        let msj, tipo, titulo;
+       
+        //VALIDAR 
+        if(mensaje === "vehiculo creado"){
+            msj = "Vehiculo guardado correctamente"; 
+            tipo = "success";
+            titulo = "Proceso exitoso"; 
+            alerta(msj, tipo, titulo); 
+
+            //LIMPIAR CAJAS 
+            setVehiculo({
+                placa: "",
+                marca: "",
+                modelo: ""
+            }); 
+        }
+        else if(mensaje === "vehiculo existente"){
+            msj = "Existe un vehiculo con la misma placa"; 
+            tipo = "error";
+            titulo = "No se pudo guardar"; 
+            alerta(msj, tipo, titulo); 
+        }
+
+        
+    }
+
+
+    const onSubmit = (e) => {
+        e.preventDefault(); 
+        crearVehiculo(); 
     }
 
     return (

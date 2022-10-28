@@ -6,6 +6,7 @@ import CrearCuenta from "./pages/auth/CrearCuenta";
 import Home from "./pages/Home";
 import ListaVehiculos from "./pages/vehiculos/ListaVehiculos";
 import CrearVehiculo from "./pages/vehiculos/CrearVehiculo";
+import ActualizarVehiculo from "./pages/vehiculos/ActualizarVehiculo"; 
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="/Home" exact element={<Home/>}/>
           <Route path="/list" exact element={<ListaVehiculos/>}/>
           <Route path="/new" exact element={<CrearVehiculo/>} />
+          <Route path="/edit/:id" exact element={<ActualizarVehiculo/>} />
         </Routes>
       </Router>
     </Fragment>
