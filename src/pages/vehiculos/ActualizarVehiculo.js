@@ -1,17 +1,93 @@
 import React from "react";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
+import { useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import APIInvoke from "../../utils/APIInvoke"; 
+import { useNavigate } from "react-router-dom";
+import swal from "sweetalert";
+
+
 
 const ActualizarVehiculo = () => {
 
-    let placa, marca, modelo; 
+    const alerta= (mensaje, tipo, titulo)=>{
+        swal({
+            title: titulo,
+            text: mensaje, 
+            icon: tipo,
+            buttons: {
+                confirm:{
+                    text: "Aceptar",
+                    value: true, 
+                    visible: true,
+                    className: "btn btn-secondary",
+                    closeModal: true
+                }
+            }
+        });
+    }
 
-    const onChange = ()=>{
+    const navegador = useNavigate(); 
+    const { id } = useParams(); 
+
+    const [vehiculo, setVehiculo] = useState({
+        placa: "",
+        marca: "",
+        modelo: ""
+    }); 
+    
+    const { placa, marca, modelo } = vehiculo; 
+    
+    const cargarDatos = async ()=>{
+        const response = await APIInvoke.invokeGET("/vehiculos/find/"+id);
+        setVehiculo(response);  
 
     }
 
-    const onSubmit = ()=>{
+    useEffect(()=>{
+        document.getElementById("placa").focus(); 
+        cargarDatos();
+    },[]); 
 
+    const onChange = (e)=>{
+        setVehiculo({
+            ...vehiculo,
+            [e.target.name]: e.target.value
+        }); 
+    }
+
+    const editarVehiculo = async ()=>{
+        const data = {
+            placa: vehiculo.placa, 
+            marca: vehiculo.marca, 
+            modelo: vehiculo.modelo
+        }
+
+        const response = await APIInvoke.invokePUT("/vehiculos/edit/"+id, data);
+        let msj, tipo, titulo; 
+
+        if(response.mensaje === "Editado correctamente"){
+            msj = "Vehiculo editado correctamente"; 
+            tipo = "success";
+            titulo = "Proceso exitoso"; 
+            alerta(msj, tipo, titulo);
+
+            navegador("/list"); 
+        }
+        else {
+            msj = "No se pudo editar el vehiculo"; 
+            tipo = "error";
+            titulo = "Error en el proceso"; 
+            alerta(msj, tipo, titulo);
+
+            navegador("/list");
+        }
+    }
+
+    const onSubmit = (e)=>{
+        e.preventDefault(); 
+        editarVehiculo(); 
     }
 
     return (
@@ -43,6 +119,7 @@ const ActualizarVehiculo = () => {
                                                     value={placa}
                                                     onChange={onChange}
                                                     required
+                                                    readOnly
                                                 />
                                                 <label htmlFor="floatingInput">Placa</label>
                                             </div>

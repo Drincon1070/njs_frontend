@@ -4,6 +4,7 @@ import Footer from "../../components/Footer";
 import { useEffect, useState } from "react";
 import APIInvoke from "../../utils/APIInvoke"; 
 import { Link } from "react-router-dom";
+import swal from "sweetalert";
 
 const ListaVehiculos = () => {
 
@@ -18,6 +19,40 @@ const ListaVehiculos = () => {
     useEffect(()=>{
         cargarVehiculos(); 
     },[])
+
+    const eliminarVehiculo = async (e, id)=>{
+        e.preventDefault(); 
+
+        const confirmar = swal({
+            title: "Confirmar eliminación ",
+            text: "¿Desea eliminar este registro", 
+            icon: "info",
+            buttons: {
+                confirm:{
+                    text: "Aceptar",
+                    value: true, 
+                    visible: true,
+                    className: "btn btn-secondary",
+                    closeModal: true,
+                    return: true
+                },
+                cancel:{
+                    text: "Cancelar",
+                    value: false, 
+                    visible: true,
+                    className: "btn btn-secondary",
+                    closeModal: true,
+                    return: false
+                }
+            }
+        }); 
+
+        if(confirmar){
+            const response = await APIInvoke.invokeDELETE("/vehiculos/delete/"+id);
+            console.log(response.mensaje); 
+            cargarVehiculos(); 
+        }
+    }
 
     return (
         <div className="container">
@@ -61,7 +96,11 @@ const ListaVehiculos = () => {
                                                     to={`/edit/${item._id}`} >
                                                     Actualizar
                                                 </Link>
-                                                <button type="button" class="btn btn-outline-secondary">Eliminar</button>
+                                                <button 
+                                                    class="btn btn-outline-secondary"
+                                                    onClick={(e)=> eliminarVehiculo(e, item._id)}>
+                                                    Eliminar
+                                                </button>
                                             </td>
                                         </tr>
                                     )
