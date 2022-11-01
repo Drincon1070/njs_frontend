@@ -5,8 +5,26 @@ import { useEffect, useState } from "react";
 import APIInvoke from "../../utils/APIInvoke"; 
 import { Link } from "react-router-dom";
 import swal from "sweetalert";
+import { confirm } from "react-confirm-box";
 
 const ListaVehiculos = () => {
+
+    const alerta= (mensaje, tipo, titulo)=>{
+        swal({
+            title: titulo,
+            text: mensaje, 
+            icon: tipo,
+            buttons: {
+                confirm:{
+                    text: "Aceptar",
+                    value: true, 
+                    visible: true,
+                    className: "btn btn-secondary",
+                    closeModal: true
+                }
+            }
+        });
+    }
 
     const [vehiculos, setVehiculos] = useState([]); 
 
@@ -23,35 +41,31 @@ const ListaVehiculos = () => {
     const eliminarVehiculo = async (e, id)=>{
         e.preventDefault(); 
 
-        const confirmar = swal({
-            title: "Confirmar eliminación ",
-            text: "¿Desea eliminar este registro", 
-            icon: "info",
-            buttons: {
-                confirm:{
-                    text: "Aceptar",
-                    value: true, 
-                    visible: true,
-                    className: "btn btn-secondary",
-                    closeModal: true,
-                    return: true
-                },
-                cancel:{
-                    text: "Cancelar",
-                    value: false, 
-                    visible: true,
-                    className: "btn btn-secondary",
-                    closeModal: true,
-                    return: false
-                }
-            }
-        }); 
+        const confirmar =  await confirm("¿Desea eliminar este registro?"); 
+        let msj, titulo, tipo; 
 
         if(confirmar){
             const response = await APIInvoke.invokeDELETE("/vehiculos/delete/"+id);
             console.log(response.mensaje); 
+
+            msj = "Vehiculo eliminado correctamente"; 
+            tipo = "success";
+            titulo = "Proceso exitoso"; 
+            alerta(msj, tipo, titulo); 
+
             cargarVehiculos(); 
+        }else{
+            msj = "No se ha eliminado el registro"; 
+            tipo = "warning";
+            titulo = "Advertencia"; 
+            alerta(msj, tipo, titulo); 
         }
+    }
+
+    const onSubmit = (e) => {
+        e.preventDefault(); 
+        const parametro = document.getElementById("parametro").value; 
+        console.log(parametro); 
     }
 
     return (
@@ -62,12 +76,19 @@ const ListaVehiculos = () => {
                 <div className="container">
                     <br></br>
                     <h2 className="mt-5">Lista de vehiculos</h2>
-                    <form><br></br>
+                    <form onSubmit={onSubmit}><br></br>
                         <div className="row">
                             <div className="input-group">
                                 <span className="input-group-text" id="basic-addon1">Ingrese un valor</span>
-                                <input type="text" className="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Upload" />
-                                <button className="btn btn-secondary" type="button" id="inputGroupFileAddon04">Buscar</button>
+                                <input 
+                                    type="text" 
+                                    className="form-control" 
+                                    id="parametro" 
+                                    name="parametro"
+                                    aria-describedby="inputGroupFileAddon04" 
+                                    aria-label="Upload" 
+                                />
+                                <button className="btn btn-secondary" type="submit" id="inputGroupFileAddon04">Buscar</button>
                             </div>
                         </div>
                     </form>
