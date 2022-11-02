@@ -2,6 +2,11 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const Nabvar = () =>{
+
+    const onClick = () => {
+        localStorage.removeItem("user");
+        window.location.href="/"; 
+    }
     return(
         <div className="d-flex flex-column h-100"> 
             <header>
@@ -22,7 +27,8 @@ const Nabvar = () =>{
                             </ul>
                             <form className="d-flex" role="search">
                                 <input className="form-control me-2" type="search" placeholder="Parametro" aria-label="Search" />
-                                <button className="btn btn-outline-success" type="submit">Buscar</button>
+                                <button className="btn btn-outline-success mx-2" type="submit">Buscar</button>
+                                <button  onClick={onClick} className="btn btn-outline-success mx-2" type="button">Salir</button>
                             </form>
                         </div>
                     </div>

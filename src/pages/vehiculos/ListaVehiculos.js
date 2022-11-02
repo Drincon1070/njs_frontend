@@ -62,10 +62,25 @@ const ListaVehiculos = () => {
         }
     }
 
-    const onSubmit = (e) => {
+    const onSubmit = async (e) => {
         e.preventDefault(); 
         const parametro = document.getElementById("parametro").value; 
-        console.log(parametro); 
+        
+        const consulta = await APIInvoke.invokeGET("/vehiculos/list/"+parametro); 
+
+        let msj, tipo, titulo; 
+
+        if(consulta.mensaje === "sin registros"){
+            msj = "No se generaron registros en la consulta"; 
+            tipo = "warning";
+            titulo = "Información"; 
+            alerta(msj, tipo, titulo);
+            document.getElementById("parametro").value = "";  
+        }
+        else {
+            setVehiculos(consulta); 
+            document.getElementById("parametro").value = "";  
+        }
     }
 
     return (
